@@ -1,21 +1,17 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from utils.analysis import analyze_stock
-from utils.price_fetcher import fetch_prices
+from utils.analyzer import analyze_stock
 
 app = FastAPI()
 
 class StockRequest(BaseModel):
-    symbols: list[str]
+    symbol: str
 
 @app.post("/analyze")
-def analyze(request: StockRequest):
-    results = []
-    for symbol in request.symbols:
-        prices = fetch_prices(symbol)
-        analysis = analyze_stock(prices)
-        results.append({
-            "symbol": symbol,
-            "analysis": analysis
-        })
-    return results
+def analyze(req: StockRequest):
+    result = analyze_stock(req.symbol.upper())
+    return result
+
+@app.get("/")
+def root():
+    return {"msg": "📈 Stock Analyzer API is running"}
